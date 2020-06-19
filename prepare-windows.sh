@@ -4,12 +4,10 @@
 NAME="Win10"
 URL="https://az792536.vo.msecnd.net/vms/VMBuild_20190311/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
 RAM="8G"
-SNAPSHOT_MODE="-snapshot"
+SNAPSHOT_MODE=1			# Snapshot mode by default
 
 
-
-FILENAME="$NAME.zip"
-VMDKNAME="$NAME.vmdk"
+VMNAME="$NAME.qcow2"
 
 get_image() {
     # Retreive file
@@ -20,9 +18,9 @@ get_image() {
     # Extract vmdk
     vmdk_file=`tar tf "$ova_file" | grep vmdk$`
     if ! [ -f "$vmdk_file" ]; then
-	tar xvf "$ova_file" "$vmdk_file"
+	tar xvf "$ova_file" "$vmdk_file" --checkpoint=.1000
     fi
-    mv "$vmdk_file" "$VMDKNAME"
+    qemu-img convert -O qcow2 "$vmdk_file" "$VMNAME"
 }
 
 run() {
@@ -38,16 +36,16 @@ for arg in "$@"; do
     
 done
 
-if ! [ -f $VMDKNAME ]; then
+if ! [ -f $VMNAME ]; then
     get_image
     SNAPSHOT_MODE=0		# Running for the first time
 fi
 
 # Run the VM
 if [ $SNAPSHOT_MODE ]; then
-    qemu-kvm -m "$RAM" -daemonize "$VMDKNAME"
+    qemu-kvm -m "$RAM" -daemonize "$VMNAME"
 else
-    qemu-kvm -m "$RAM" -snapshot -daemonize "$VMDKNAME"
+    qemu-kvm -m "$RAM" -snapshot -daemonize "$VMNAME"
 fi
 
 
