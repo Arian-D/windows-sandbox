@@ -1,15 +1,34 @@
-#+TITLE: Windows VM sandox
-A bash script to create and run a [[https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/][Windows VM]] for sandboxing using
+#+TITLE: Windows VM sandbox
+A bash script to download, create, and run a [[https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/][Windows VM]] for sandboxing using
 QEMU-KVM.
 * Usage
 #+BEGIN_SRC shell
 ./prepare-windows.sh
 #+END_SRC
-If the VM doesn't exist, it downloads the image, and converts it to
-~qcow2~. Then, it launches the VM.
+
+By default, the script runs as a sandbox except the first time or if
+you pass ~--persistent~. There are some VARs that you can configure in the
+script. Feel free to change it for your needs. If the VM doesn't
+exist, the script downloads the image, and converts it to ~qcow2~. Then,
+it launches the VM. 
 
 (Current) flags:
-- ~-p~: Make the VM persistent (for sandboxing)
+- ~--persistent~ (~-p~): Make the VM persistent to make changes (updates
+  or [[https://github.com/fireeye/flare-vm][Flare VM]].
+* Installation
+** Dependencies
+The only dependencies are
+- A working Linux/BSD host
+- wget
+- tar
+- unzip
+- QEMU
+~wget~, ~tar~, and ~unzip~ are either already available in your distribution
+or you can obtain them from your package manager. For QEMU, you can
+refer to the [[https://www.qemu.org/download/][official download page]].
+** Location
+Drop the script wherever you want to store the VM and launch it.
 * Todo
 - [ ] A flag for URL (since microsoft changes the VMs periodically).
-- [ ] Multi-core CPU support
+- [ ] Switch to getopts for flags
+- [X] Multi-core CPU support

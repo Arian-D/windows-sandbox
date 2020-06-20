@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
 # Config
+# Name of the VM and disk
 NAME="Win10"
+# ova zip
 URL="https://az792536.vo.msecnd.net/vms/VMBuild_20190311/VirtualBox/MSEdge/MSEdge.Win10.VirtualBox.zip"
-RAM="8G"
-SNAPSHOT_MODE=1			# Snapshot mode by default
+# RAM = ram / 2 (not counting swap)
+RAM=`free | grep ^Mem | awk '{print $2}'`
+((RAM/=2))
+# CPUS = # of cpus / 2
+CPUS=`nproc --all`
+((CPUS/=2))
 
 
+
+SNAPSHOT_MODE=1
 VMNAME="$NAME.qcow2"
 
 get_image() {
@@ -21,10 +29,6 @@ get_image() {
 	tar xvf "$ova_file" "$vmdk_file" --checkpoint=.1000
     fi
     qemu-img convert -O qcow2 "$vmdk_file" "$VMNAME"
-}
-
-run() {
-    echo hi
 }
 
 for arg in "$@"; do
@@ -43,9 +47,9 @@ fi
 
 # Run the VM
 if [ $SNAPSHOT_MODE ]; then
-    qemu-kvm -m "$RAM" -daemonize "$VMNAME"
+    qemu-kvm -name "$NAME" -m "$RAM" -smp "$CPUS" -daemonize "$VMNAME"
 else
-    qemu-kvm -m "$RAM" -snapshot -daemonize "$VMNAME"
+    qemu-kvm -name "$NAME" -m "$RAM" -smp "$CPUS" -daemonize -snapshot "$VMNAME"
 fi
 
 
